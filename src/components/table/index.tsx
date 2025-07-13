@@ -3,14 +3,17 @@ import type { PropsWithChildren } from "react";
 import Skeleton from "react-loading-skeleton";
 import "./index.css"
 
+interface Column<T> {
+  label: string, key: string, fixed?: boolean, width?: number | string, render?: (key: any, record: T, index?: number) => React.ReactNode
+}
 export interface TableProps<T> {
   loading?: boolean;
   loadingNums?: { rows?: number, columns?: number };
-  columns: { label: string, key: string, fixed?: boolean, width?: number | string, render?: (key: any, record: T, index?: number) => React.ReactNode }[];
+  columns: Column<T>[];
   dataSource: T[];
   onRowClick?: (record: T) => void;
 }
-const Table = <T extends { id: string }>({ loading, loadingNums = { rows: 3, columns: 3 }, columns, dataSource, onRowClick }: PropsWithChildren<TableProps<T>>) => {
+const Table = <T extends { id: string, [key: string]: any }>({ loading, loadingNums = { rows: 3, columns: 3 }, columns, dataSource, onRowClick }: PropsWithChildren<TableProps<T>>) => {
   return (
     <div className="overflow-x-auto">
       <table className="table-fixed min-w-0">
@@ -56,8 +59,8 @@ const Table = <T extends { id: string }>({ loading, loadingNums = { rows: 3, col
                     key={`${row.id}-${column.key}`}
                   >
                     <div style={{ width: column.width || "fit-content" }}>{column.render ?
-                      column.render((row as Record<string, any>)[column.key], row, index) :
-                      (row as Record<string, any>)[column.key]}
+                      column.render(row[column.key], row, index) :
+                      row[column.key]}
                     </div>
                   </td>
                 ))}
